@@ -1,9 +1,8 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: pink; icon-glyph: dove;
-// Flamingo Widget v1.0 - by UnvsDev
-// thanks to Juliokim for Development
-// Show fancy artworks on Artvee
+// Flamingo Widget v1.1 - by UnvsDev
+// Dive into the world of art, in your iPhone.
 // Learn More: https://github.com/unvsDev/Flamingo
 
 let today = new Date()
@@ -28,7 +27,7 @@ var artworkOrgPref = {
   image: []
 }
 
-var bnum = 100 // Do not edit this area
+var bnum = 101 // Do not edit this area
 
 if(!fm.fileExists(fDir)){ fm.createDirectory(fDir) }
 if(fm.fileExists(prefPath)){
@@ -54,9 +53,14 @@ if(config.runsInApp){
   const settings = new UITable()
   settings.showSeparators = true
   
+  const info = new UITableRow()
+  info.dismissOnSelect = false
+  info.addText("Welcome to Flamingo", "Developed by unvsDev")
+  settings.addRow(info)
+  
   const selectArtist = new UITableRow()
   selectArtist.dismissOnSelect = false
-  selectArtist.addText("Artwork Filter (by Artist / Category)")
+  selectArtist.addText("Set Artwork Filter")
   settings.addRow(selectArtist)
   selectArtist.onSelect = async () => {
     let alert = new Alert()
@@ -102,7 +106,7 @@ if(config.runsInApp){
   
   const selectLocal = new UITableRow()
   selectLocal.dismissOnSelect = false
-  selectLocal.addText("Get Local Artworks?")
+  selectLocal.addText("Local Artworks")
   settings.addRow(selectLocal)
   selectLocal.onSelect = async () => {
     let alert = new Alert()
@@ -121,7 +125,7 @@ if(config.runsInApp){
   
   const selectRef = new UITableRow()
   selectRef.dismissOnSelect = false
-  selectRef.addText("Refresh Interval?")
+  selectRef.addText("Refresh Interval")
   settings.addRow(selectRef)
   selectRef.onSelect = async () => {
     let alert = new Alert()
@@ -139,7 +143,7 @@ if(config.runsInApp){
   
   const selectTitle = new UITableRow()
   selectTitle.dismissOnSelect = false
-  selectTitle.addText("Show Artwork's Detail?")
+  selectTitle.addText("Show Artwork's Detail")
   settings.addRow(selectTitle)
   selectTitle.onSelect = async () => {
     let alert = new Alert()
@@ -156,7 +160,7 @@ if(config.runsInApp){
   
   const selectRt = new UITableRow()
   selectRt.dismissOnSelect = false
-  selectRt.addText("Show Last Refreshed Time?")
+  selectRt.addText("Show Last Refreshed Time")
   settings.addRow(selectRt)
   selectRt.onSelect = async () => {
     let alert = new Alert()
@@ -173,7 +177,7 @@ if(config.runsInApp){
   
   const selectLoad = new UITableRow()
   selectLoad.dismissOnSelect = false
-  selectLoad.addText("Artwork Search Range?")
+  selectLoad.addText("Artwork Search Range")
   settings.addRow(selectLoad)
   selectLoad.onSelect = async () => {
     let alert = new Alert()
@@ -295,6 +299,10 @@ try{
 
 if(!offlineMode){
   arts = await loadArts(artist)
+  if(arts.length < 1){
+    throw new Error("[!] No result found.")
+    return 0
+  }
 }
 
 let targetArt; let todayIdx
@@ -307,7 +315,7 @@ if(offlineMode){
   var artUrl = localData.url[todayIdx]
   targetArt = await fm.readImage(fm.joinPath(fDir2, localData.image[todayIdx] + ".jpg"))
 } else {
-  console.log('arts: ' + JSON.stringify(arts, null, 4))
+  // console.log('arts: ' + JSON.stringify(arts, null, 4))
   todayIdx = Math.floor(Math.random() * arts.length)
   let todayArt = arts[todayIdx]
   
@@ -315,7 +323,15 @@ if(offlineMode){
   var artAuthor = todayArt.artist.info.split("(")[0]
   var artName = todayArt.title.split("(")[0]
   var artUrl = todayArt.link
-  targetArt = await new Request(todayArt.image.link).loadImage()
+  
+  let localData = JSON.parse(fm.readString(localPath))
+  if(localData.image.indexOf(artId) != -1){
+    targetArt = await fm.readImage(fm.joinPath(fDir2, artId + ".jpg"))
+    console.log("[*] Getting preloaded image.. (" + artId + ")")
+  } else {
+    targetArt = await new Request(todayArt.image.link).loadImage()
+    console.log("[*] Downloaded image.. (" + artId + ")")
+  }
   
   if(prefData.local == 0){
     let localData = JSON.parse(fm.readString(localPath))
@@ -355,7 +371,7 @@ if(prefData.title){
 }
 
 if(prefData.rtitle){
-  let rTitle = lStack.addText("Last updated: " + formatTime(today) + " (" + `${todayIdx + 1} / ${arts.length}` + ")")
+  let rTitle = lStack.addText("Last updated: " + formatTime(today) + " (" + `${todayIdx + 1} / ${arts.length}` + ", ID: " + artId + ")")
   rTitle.textColor = Color.white()
   rTitle.font = Font.lightMonospacedSystemFont(9)
 }
