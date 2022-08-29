@@ -257,9 +257,9 @@ async function loadArts(artist){
   
   return webView.evaluateJavaScript(`
      let arts = [...document.querySelectorAll('.products .product-grid-item .product-wrapper')].map((ele) => {
-        let productLinkEle = ele.querySelector('.product-element-top .product-image-link')
+        let productLinkEle = ele.querySelector('.product-element-top')
         let imageEle = productLinkEle.querySelector('img')
-        let productInfoEle = ele.querySelector('.product-element-bottom > span')
+        let productInfoEle = ele.querySelector('.product-element-bottom')
         return {
            id: parseInt(productInfoEle.querySelector('.linko').dataset.id),
            title: productInfoEle.querySelector('h3.product-title > a').innerText,
