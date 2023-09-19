@@ -1,6 +1,9 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: pink; icon-glyph: dove;
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: pink; icon-glyph: dove;
 // Flamingo Widget v1.1 - by UnvsDev
 // Dive into the world of art, in your iPhone.
 // Learn More: https://github.com/unvsDev/Flamingo
@@ -52,12 +55,12 @@ var endMode = false
 if(config.runsInApp){
   const settings = new UITable()
   settings.showSeparators = true
-  
+
   const info = new UITableRow()
   info.dismissOnSelect = false
   info.addText("Welcome to Flamingo", "Developed by unvsDev")
   settings.addRow(info)
-  
+
   const selectArtist = new UITableRow()
   selectArtist.dismissOnSelect = false
   selectArtist.addText("Set Artwork Filter")
@@ -70,7 +73,7 @@ if(config.runsInApp){
     alert.addAction("Artvee's Weekly Pick")
     alert.addAction("Special Collections")
     alert.addCancelAction("Cancel")
-    
+
     let response = await alert.present()
     if(response == 0) {
       let inAlert = new Alert()
@@ -79,7 +82,7 @@ if(config.runsInApp){
       inAlert.addTextField("Leonardo Da Vinci", "")
       inAlert.addAction("Done")
       inAlert.addCancelAction("Cancel")
-      
+
       if(await inAlert.present() != -1){
         prefData.artist = inAlert.textFieldValue()
       }
@@ -88,22 +91,22 @@ if(config.runsInApp){
     } else if(response == 2){
       const collectionView = new UITable()
       collectionView.showSeparators = true
-      
+
       for(name in artveeCollections){
         const collectionRow = new UITableRow()
         collectionRow.dismissOnSelect = true
         collectionRow.addText(name)
         collectionView.addRow(collectionRow)
-        
+
         collectionRow.onSelect = async () => {
           prefData.artist = artveeCollections[name]
         }
       }
-      
+
       await collectionView.present()
     }
   }
-  
+
   const selectLocal = new UITableRow()
   selectLocal.dismissOnSelect = false
   selectLocal.addText("Local Artworks")
@@ -116,13 +119,13 @@ if(config.runsInApp){
     alert.addAction("Show only local Artworks")
     alert.addDestructiveAction("Never download Artworks")
     alert.addCancelAction("Cancel")
-    
+
     let response = await alert.present()
     if(response != -1){
       prefData.local = response
     }
   }
-  
+
   const selectRef = new UITableRow()
   selectRef.dismissOnSelect = false
   selectRef.addText("Refresh Interval")
@@ -134,13 +137,13 @@ if(config.runsInApp){
     alert.addTextField("(second)", prefData.refresh.toString())
     alert.addAction("Done")
     alert.addCancelAction("Cancel")
-    
+
     let response = await alert.present()
     if(response != -1){
       prefData.refresh = parseInt(alert.textFieldValue())
     }
   }
-  
+
   const selectTitle = new UITableRow()
   selectTitle.dismissOnSelect = false
   selectTitle.addText("Show Artwork's Detail")
@@ -151,13 +154,13 @@ if(config.runsInApp){
     alert.message = "Widget will show Artwork's Name and Author."
     alert.addAction("Yes")
     alert.addAction("No")
-    
+
     let response = await alert.present()
     if(response != -1){
       prefData.title = response ? false : true
     }
   }
-  
+
   const selectRt = new UITableRow()
   selectRt.dismissOnSelect = false
   selectRt.addText("Show Last Refreshed Time")
@@ -168,13 +171,13 @@ if(config.runsInApp){
     alert.message = "Widget will show Artwork's last refreshed time."
     alert.addAction("Yes")
     alert.addAction("No")
-    
+
     let response = await alert.present()
     if(response != -1){
       prefData.rtitle = response ? false : true
     }
   }
-  
+
   const selectLoad = new UITableRow()
   selectLoad.dismissOnSelect = false
   selectLoad.addText("Artwork Search Range")
@@ -188,13 +191,13 @@ if(config.runsInApp){
     alert.addAction("100 (Big)")
     alert.addAction("200 (Large)")
     alert.addCancelAction("Cancel")
-    
+
     let response = await alert.present()
     if(response != -1){
       prefData.load = response
     }
   }
-  
+
   const resetOption = new UITableRow()
   resetOption.dismissOnSelect = true
   resetOption.addText("Reset all data")
@@ -207,7 +210,7 @@ if(config.runsInApp){
     alert.addDestructiveAction("Delete only user data")
     alert.addDestructiveAction("Delete all artworks with data")
     alert.addCancelAction("No")
-    
+
     let response = await alert.present()
     if(response == 0){
       await fm.remove(prefPath)
@@ -215,7 +218,7 @@ if(config.runsInApp){
       await fm.remove(fDir)
     }
   }
-  
+
   const saveOption = new UITableRow()
   saveOption.dismissOnSelect = true
   saveOption.addText("Save and quit")
@@ -223,7 +226,7 @@ if(config.runsInApp){
   saveOption.onSelect = () => {
     endMode = true
   }
-  
+
   await settings.present()
   fm.writeString(prefPath, JSON.stringify(prefData))
 }
@@ -234,14 +237,14 @@ prefData = JSON.parse(fm.readString(prefPath))
 
 const artistInput = prefData.artist
 const artist = artistInput.replace(/ /gi, "-").toLowerCase()
-  
+
 async function loadArts(artist){
   var chunk
   if(prefData.load == 0) { chunk = 20 }
   else if(prefData.load == 1) { chunk = 50 }
   else if(prefData.load == 2) { chunk = 100 }
   else { chunk = 200 }
-  
+
   const baseUrl = 'https://artvee.com'
   var source
   if(artistInput == "!weekly") {
@@ -251,12 +254,12 @@ async function loadArts(artist){
   } else {
     source = `${baseUrl}/artist/${artist}/?per_page=`+ chunk
   }
-  
+
   let webView = new WebView()
   await webView.loadURL(source)
-  
+
   return webView.evaluateJavaScript(`
-     let arts = [...document.querySelectorAll('.products .product-grid-item .product-wrapper')].map((ele) => {
+     let arts = [...document.querySelectorAll('.products, .product-grid-item, .product-wrapper')].map((ele) => {
         let productLinkEle = ele.querySelector('.product-element-top')
         let imageEle = productLinkEle.querySelector('img')
         let productInfoEle = ele.querySelector('.product-element-bottom')
@@ -270,13 +273,13 @@ async function loadArts(artist){
            },
            link: productLinkEle.getAttribute('href'),
            image: {
-              link: imageEle.getAttribute('src'),
+              link: imageEle.getAttribute('data-src'),
               width: imageEle.getAttribute('width'),
               height: imageEle.getAttribute('height'),
            }
         }
      }).sort((prev, next) => prev.id - next.id)
-                  
+
      completion(arts)
           `, true)
 }
@@ -309,7 +312,7 @@ let targetArt; let todayIdx
 if(offlineMode){
   let localData = JSON.parse(fm.readString(localPath))
   todayIdx = Math.floor(Math.random() * localData.image.length)
-  
+
   var artAuthor = localData.author[todayIdx]
   var artName = localData.name[todayIdx]
   var artUrl = localData.url[todayIdx]
@@ -318,12 +321,12 @@ if(offlineMode){
   // console.log('arts: ' + JSON.stringify(arts, null, 4))
   todayIdx = Math.floor(Math.random() * arts.length)
   let todayArt = arts[todayIdx]
-  
+
   var artId = todayArt.id
   var artAuthor = todayArt.artist.info.split("(")[0]
   var artName = todayArt.title.split("(")[0]
   var artUrl = todayArt.link
-  
+
   let localData = JSON.parse(fm.readString(localPath))
   if(localData.image.indexOf(artId) != -1){
     targetArt = await fm.readImage(fm.joinPath(fDir2, artId + ".jpg"))
@@ -332,7 +335,7 @@ if(offlineMode){
     targetArt = await new Request(todayArt.image.link).loadImage()
     console.log("[*] Downloaded image.. (" + artId + ")")
   }
-  
+
   if(prefData.local == 0){
     let localData = JSON.parse(fm.readString(localPath))
     if(localData.image.indexOf(artId) == -1){
@@ -364,7 +367,7 @@ if(prefData.title){
   let author = lStack.addText(artAuthor)
   author.textColor = Color.white()
   author.font = Font.lightMonospacedSystemFont(12)
-  
+
   let title = lStack.addText(artName)
   title.textColor = Color.white()
   title.font = Font.boldMonospacedSystemFont(15)
@@ -375,7 +378,7 @@ if(prefData.rtitle){
   rTitle.textColor = Color.white()
   rTitle.font = Font.lightMonospacedSystemFont(9)
 }
-  
+
 function formatTime(date) {
   let df = new DateFormatter()
   df.useNoDateStyle()
@@ -398,3 +401,4 @@ widget.addSpacer(3)
 
 widget.backgroundImage = targetArt
 widget.presentLarge()
+
