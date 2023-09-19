@@ -1,9 +1,6 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: pink; icon-glyph: dove;
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: pink; icon-glyph: dove;
 // Flamingo Widget v1.1 - by UnvsDev
 // Dive into the world of art, in your iPhone.
 // Learn More: https://github.com/unvsDev/Flamingo
